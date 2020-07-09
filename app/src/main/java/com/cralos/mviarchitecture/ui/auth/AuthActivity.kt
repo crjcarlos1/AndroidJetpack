@@ -1,7 +1,8 @@
-package com.cralos.mviarchitecture
+package com.cralos.mviarchitecture.ui.auth
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import com.cralos.mviarchitecture.R
 
 class AuthActivity : AppCompatActivity() {
 
