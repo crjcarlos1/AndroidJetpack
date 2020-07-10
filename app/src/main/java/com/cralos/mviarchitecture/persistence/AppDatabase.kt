@@ -11,7 +11,7 @@ import com.cralos.mviarchitecture.models.AuthToken
     ],
     version = 1
 )
-abstract class AppDataBase : RoomDatabase(){
+abstract class AppDatabase : RoomDatabase(){
 
     abstract fun getAuthTokenDao(): AuthTokenDao
 

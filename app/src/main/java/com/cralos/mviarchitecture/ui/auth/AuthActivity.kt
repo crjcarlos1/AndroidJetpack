@@ -1,10 +1,10 @@
 package com.cralos.mviarchitecture.ui.auth
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.cralos.mviarchitecture.R
+import com.cralos.mviarchitecture.ui.BaseActivity
 
-class AuthActivity : AppCompatActivity() {
+class AuthActivity : BaseActivity() {
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
