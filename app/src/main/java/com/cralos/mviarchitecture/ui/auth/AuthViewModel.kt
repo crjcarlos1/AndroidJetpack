@@ -10,9 +10,12 @@ import com.cralos.mviarchitecture.ui.auth.state.AuthViewState
 import com.cralos.mviarchitecture.ui.auth.state.LoginFields
 import com.cralos.mviarchitecture.ui.auth.state.RegistrationFields
 import com.cralos.mviarchitecture.util.AbsentLiveData
+import kotlinx.coroutines.InternalCoroutinesApi
 import javax.inject.Inject
 
+@InternalCoroutinesApi
 class AuthViewModel
+@InternalCoroutinesApi
 @Inject
 constructor(
     val authRepository: AuthRepository
@@ -68,6 +71,15 @@ constructor(
         }
         update.authToken = authToken
         _viewState.value = update
+    }
+
+    fun cancelActiveJobs(){
+        authRepository.cancelActiveJobs()
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        cancelActiveJobs()
     }
 
 }

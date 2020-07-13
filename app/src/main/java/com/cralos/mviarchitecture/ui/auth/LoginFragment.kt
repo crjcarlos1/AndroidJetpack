@@ -11,7 +11,9 @@ import com.cralos.mviarchitecture.R
 import com.cralos.mviarchitecture.ui.auth.state.AuthStateEvent
 import com.cralos.mviarchitecture.ui.auth.state.LoginFields
 import kotlinx.android.synthetic.main.fragment_login.*
+import kotlinx.coroutines.InternalCoroutinesApi
 
+@InternalCoroutinesApi
 class LoginFragment : BaseAuthFragment() {
 
     lateinit var inputEmail: EditText

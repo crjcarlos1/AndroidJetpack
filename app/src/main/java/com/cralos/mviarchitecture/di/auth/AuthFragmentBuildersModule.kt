@@ -6,10 +6,12 @@ import com.cralos.mviarchitecture.ui.auth.LoginFragment
 import com.cralos.mviarchitecture.ui.auth.RegisterFragment
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
+import kotlinx.coroutines.InternalCoroutinesApi
 
 /**
  * Proveedor de fragments
  */
+@InternalCoroutinesApi
 @Module
 abstract class AuthFragmentBuildersModule {
 

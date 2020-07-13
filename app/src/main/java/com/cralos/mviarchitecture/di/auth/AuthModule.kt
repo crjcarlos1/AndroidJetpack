@@ -7,8 +7,10 @@ import com.cralos.mviarchitecture.repository.auth.AuthRepository
 import com.cralos.mviarchitecture.session.SessionManager
 import dagger.Module
 import dagger.Provides
+import kotlinx.coroutines.InternalCoroutinesApi
 import retrofit2.Retrofit
 
+@InternalCoroutinesApi
 @Module
 class AuthModule {
 

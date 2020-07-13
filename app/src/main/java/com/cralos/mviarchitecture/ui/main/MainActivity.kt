@@ -7,9 +7,10 @@ import androidx.lifecycle.Observer
 import com.cralos.mviarchitecture.R
 import com.cralos.mviarchitecture.ui.BaseActivity
 import com.cralos.mviarchitecture.ui.auth.AuthActivity
-import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.InternalCoroutinesApi
 
-class MainActivity : BaseActivity(){
+@InternalCoroutinesApi
+class MainActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -17,17 +18,17 @@ class MainActivity : BaseActivity(){
         subscribeObservers()
     }
 
-    fun subscribeObservers(){
-        sessionManager.cachedToken.observe(this, Observer {authToken ->
+    fun subscribeObservers() {
+        sessionManager.cachedToken.observe(this, Observer { authToken ->
             Log.e(TAG, "MainActivity: subscribeObservers: AuthToken: $authToken")
-            if (authToken == null || authToken.account_pk == -1 || authToken.token == null){
+            if (authToken == null || authToken.account_pk == -1 || authToken.token == null) {
                 navAuthActivity()
             }
         })
     }
 
     private fun navAuthActivity() {
-        val intent = Intent(this,AuthActivity::class.java)
+        val intent = Intent(this, AuthActivity::class.java)
         startActivity(intent)
         finish()
     }

@@ -8,7 +8,9 @@ import com.cralos.mviarchitecture.ui.auth.AuthActivity
 import com.cralos.mviarchitecture.ui.main.MainActivity
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
+import kotlinx.coroutines.InternalCoroutinesApi
 
+@InternalCoroutinesApi
 @Module
 abstract class ActivityBuildersModule {
 

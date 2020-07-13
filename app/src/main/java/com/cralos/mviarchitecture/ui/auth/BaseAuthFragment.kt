@@ -5,9 +5,11 @@ import android.view.View
 import androidx.lifecycle.ViewModelProvider
 import com.cralos.mviarchitecture.viewmodels.ViewModelProviderFactory
 import dagger.android.support.DaggerFragment
+import kotlinx.coroutines.InternalCoroutinesApi
 import javax.inject.Inject
 
-abstract class BaseAuthFragment: DaggerFragment(){
+@InternalCoroutinesApi
+abstract class BaseAuthFragment : DaggerFragment() {
 
     val TAG: String = "AppDebug"
 
