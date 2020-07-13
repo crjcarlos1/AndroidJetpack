@@ -6,16 +6,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
-import android.widget.TextView
 import androidx.lifecycle.Observer
 import com.cralos.mviarchitecture.R
 import com.cralos.mviarchitecture.ui.auth.state.LoginFields
-import kotlinx.android.synthetic.main.fragment_login.*
 
 class LoginFragment : BaseAuthFragment() {
 
-    lateinit var inputEmail : EditText
-    lateinit var inputPassword : EditText
+    lateinit var inputEmail: EditText
+    lateinit var inputPassword: EditText
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -39,7 +37,7 @@ class LoginFragment : BaseAuthFragment() {
         viewModel.setLoginFields(LoginFields(email, password))
     }
 
-    fun initLoginFragment(view: View){
+    fun initLoginFragment(view: View) {
         inputEmail = view.findViewById(R.id.input_email)
         inputPassword = view.findViewById(R.id.input_password)
     }
