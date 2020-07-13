@@ -8,7 +8,9 @@ import android.view.ViewGroup
 import android.widget.EditText
 import androidx.lifecycle.Observer
 import com.cralos.mviarchitecture.R
+import com.cralos.mviarchitecture.ui.auth.state.AuthStateEvent
 import com.cralos.mviarchitecture.ui.auth.state.LoginFields
+import kotlinx.android.synthetic.main.fragment_login.*
 
 class LoginFragment : BaseAuthFragment() {
 
@@ -28,6 +30,11 @@ class LoginFragment : BaseAuthFragment() {
         initLoginFragment(view)
         Log.e(TAG, "ForgotPasswordFragment: ${viewModel.hashCode()}")
         subscribeObservers()
+
+        login_button.setOnClickListener {
+            login()
+        }
+
     }
 
     override fun onDestroy() {
@@ -51,5 +58,13 @@ class LoginFragment : BaseAuthFragment() {
         })
     }
 
+    fun login() {
+        viewModel.setStateEvent(
+            AuthStateEvent.LoginAttempEvent(
+                inputEmail.text.toString(),
+                inputPassword.text.toString()
+            )
+        )
+    }
 
 }

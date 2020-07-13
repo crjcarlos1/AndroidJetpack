@@ -7,8 +7,10 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.cralos.mviarchitecture.R
 import com.cralos.mviarchitecture.ui.BaseActivity
+import com.cralos.mviarchitecture.ui.ResponseType
 import com.cralos.mviarchitecture.ui.main.MainActivity
 import com.cralos.mviarchitecture.viewmodels.ViewModelProviderFactory
+import kotlinx.android.synthetic.main.activity_main.*
 import javax.inject.Inject
 
 class AuthActivity : BaseActivity() {
@@ -26,6 +28,39 @@ class AuthActivity : BaseActivity() {
     }
 
     private fun subscribeObservers() {
+
+        viewModel.dataState.observe(this, Observer { dataState ->
+
+            dataState.data?.let { data ->
+
+                data.data?.let { event ->
+                    event.getContentIfNotHandled()?.let {
+                        it.authToken?.let {
+                            Log.d(TAG, "AuthActivity: DataState: $it")
+                            viewModel.setAuthToken(it)
+                        }
+                    }
+                }
+
+                data.response?.let { event ->
+                    event.getContentIfNotHandled()?.let {
+                        when (it.responseType) {
+                            is ResponseType.Dialog -> {
+                                //inflate error handle
+                            }
+                            is ResponseType.Toast -> {
+                                //show toast
+                            }
+                            is ResponseType.None -> {
+                                Log.e(TAG, "AuthActivity, Response: ${it.message}")
+                            }
+                        }
+                    }
+                }
+
+            }
+
+        })
 
         viewModel.viewState.observe(this, Observer {
             it.authToken?.let {

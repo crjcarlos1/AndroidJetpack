@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.EditText
 import androidx.lifecycle.Observer
 import com.cralos.mviarchitecture.R
+import com.cralos.mviarchitecture.ui.auth.state.AuthStateEvent
 import com.cralos.mviarchitecture.ui.auth.state.RegistrationFields
 import kotlinx.android.synthetic.main.fragment_register.*
 
@@ -31,6 +32,9 @@ class RegisterFragment : BaseAuthFragment() {
         initRegisterFragment(view)
         Log.e(TAG, "ForgotPasswordFragment: ${viewModel.hashCode()}")
         subscribeObservers()
+        register_button.setOnClickListener {
+            register()
+        }
     }
 
     override fun onDestroy() {
@@ -58,10 +62,24 @@ class RegisterFragment : BaseAuthFragment() {
                 registrationFields.registration_email?.let { inputEmail.setText(it) }
                 registrationFields.registration_username?.let { inputUsername.setText(it) }
                 registrationFields.registration_password?.let { inputPassword.setText(it) }
-                registrationFields.registration_confirm_passsword?.let { inputConfirmPassword.setText(it) }
+                registrationFields.registration_confirm_passsword?.let {
+                    inputConfirmPassword.setText(
+                        it
+                    )
+                }
             }
         })
     }
 
+    fun register() {
+        viewModel.setStateEvent(
+            AuthStateEvent.RegisterAttempEvent(
+                inputEmail.text.toString(),
+                inputUsername.text.toString(),
+                inputPassword.text.toString(),
+                inputConfirmPassword.text.toString()
+            )
+        )
+    }
 
 }
