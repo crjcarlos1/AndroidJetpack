@@ -3,6 +3,7 @@ package com.cralos.mviarchitecture.ui.auth
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
@@ -10,15 +11,14 @@ import androidx.navigation.NavDestination
 import androidx.navigation.findNavController
 import com.cralos.mviarchitecture.R
 import com.cralos.mviarchitecture.ui.BaseActivity
-import com.cralos.mviarchitecture.ui.ResponseType
 import com.cralos.mviarchitecture.ui.main.MainActivity
 import com.cralos.mviarchitecture.viewmodels.ViewModelProviderFactory
-import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_auth.*
 import kotlinx.coroutines.InternalCoroutinesApi
 import javax.inject.Inject
 
 @InternalCoroutinesApi
-class AuthActivity : BaseActivity() ,NavController.OnDestinationChangedListener{
+class AuthActivity : BaseActivity(), NavController.OnDestinationChangedListener {
 
     @Inject
     lateinit var providerFactory: ViewModelProviderFactory
@@ -33,12 +33,19 @@ class AuthActivity : BaseActivity() ,NavController.OnDestinationChangedListener{
         subscribeObservers()
     }
 
+    override fun displayProgressBar(bool: Boolean) {
+        if (bool) {
+            progress_bar.visibility = View.VISIBLE
+        } else {
+            progress_bar.visibility = View.GONE
+        }
+    }
+
     private fun subscribeObservers() {
 
         viewModel.dataState.observe(this, Observer { dataState ->
-
+            onDataStateChange(dataState)
             dataState.data?.let { data ->
-
                 data.data?.let { event ->
                     event.getContentIfNotHandled()?.let {
                         it.authToken?.let {
@@ -47,25 +54,7 @@ class AuthActivity : BaseActivity() ,NavController.OnDestinationChangedListener{
                         }
                     }
                 }
-
-                data.response?.let { event ->
-                    event.getContentIfNotHandled()?.let {
-                        when (it.responseType) {
-                            is ResponseType.Dialog -> {
-                                //inflate error handle
-                            }
-                            is ResponseType.Toast -> {
-                                //show toast
-                            }
-                            is ResponseType.None -> {
-                                Log.e(TAG, "AuthActivity, Response: ${it.message}")
-                            }
-                        }
-                    }
-                }
-
             }
-
         })
 
         viewModel.viewState.observe(this, Observer {
