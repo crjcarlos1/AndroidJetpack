@@ -32,7 +32,7 @@ class AuthActivity : BaseActivity(), NavController.OnDestinationChangedListener 
         viewModel = ViewModelProvider(this, providerFactory).get(AuthViewModel::class.java)
         findNavController(R.id.auth_nav_host_fragment).addOnDestinationChangedListener(this)
         subscribeObservers()
-        checkPreviousAuthUser()
+        //checkPreviousAuthUser()
     }
 
     override fun displayProgressBar(bool: Boolean) {
