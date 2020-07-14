@@ -1,5 +1,6 @@
 package com.cralos.mviarchitecture.di.auth
 
+import android.content.SharedPreferences
 import com.cralos.mviarchitecture.api.auth.OpenApiAuthService
 import com.cralos.mviarchitecture.persistence.AccountPropertiesDao
 import com.cralos.mviarchitecture.persistence.AuthTokenDao
@@ -12,30 +13,35 @@ import retrofit2.Retrofit
 
 @InternalCoroutinesApi
 @Module
-class AuthModule {
+object AuthModule {
 
-    // TEMPORARY
+    @JvmStatic
     @AuthScope
     @Provides
-    fun provideFakeApiService(retrofitBuilder: Retrofit.Builder): OpenApiAuthService {
+    fun provideOpenApiAuthService(retrofitBuilder: Retrofit.Builder): OpenApiAuthService {
         return retrofitBuilder
             .build()
             .create(OpenApiAuthService::class.java)
     }
 
+    @JvmStatic
     @AuthScope
     @Provides
     fun provideAuthRepository(
         sessionManager: SessionManager,
         authTokenDao: AuthTokenDao,
         accountPropertiesDao: AccountPropertiesDao,
-        openApiAuthService: OpenApiAuthService
+        openApiAuthService: OpenApiAuthService,
+        preferences: SharedPreferences,
+        editor: SharedPreferences.Editor
     ): AuthRepository {
         return AuthRepository(
             authTokenDao,
             accountPropertiesDao,
             openApiAuthService,
-            sessionManager
+            sessionManager,
+            preferences,
+            editor
         )
     }
 

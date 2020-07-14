@@ -37,7 +37,7 @@ constructor(
                 )
             }
             is AuthStateEvent.CheckPreviosAuthEvent -> {
-                return AbsentLiveData.create()
+                return authRepository.checkPreviusAtuhUser()
             }
         }
     }

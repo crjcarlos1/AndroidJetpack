@@ -11,6 +11,7 @@ import androidx.navigation.NavDestination
 import androidx.navigation.findNavController
 import com.cralos.mviarchitecture.R
 import com.cralos.mviarchitecture.ui.BaseActivity
+import com.cralos.mviarchitecture.ui.auth.state.AuthStateEvent
 import com.cralos.mviarchitecture.ui.main.MainActivity
 import com.cralos.mviarchitecture.viewmodels.ViewModelProviderFactory
 import kotlinx.android.synthetic.main.activity_auth.*
@@ -31,6 +32,7 @@ class AuthActivity : BaseActivity(), NavController.OnDestinationChangedListener 
         viewModel = ViewModelProvider(this, providerFactory).get(AuthViewModel::class.java)
         findNavController(R.id.auth_nav_host_fragment).addOnDestinationChangedListener(this)
         subscribeObservers()
+        checkPreviousAuthUser()
     }
 
     override fun displayProgressBar(bool: Boolean) {
@@ -85,5 +87,8 @@ class AuthActivity : BaseActivity(), NavController.OnDestinationChangedListener 
         viewModel.cancelActiveJobs()
     }
 
+    fun checkPreviousAuthUser(){
+        viewModel.setStateEvent(AuthStateEvent.CheckPreviosAuthEvent())
+    }
 
 }

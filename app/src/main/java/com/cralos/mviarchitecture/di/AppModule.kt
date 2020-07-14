@@ -1,6 +1,8 @@
 package com.cralos.mviarchitecture.di
 
 import android.app.Application
+import android.content.Context
+import android.content.SharedPreferences
 import androidx.room.Room
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
@@ -12,6 +14,7 @@ import com.cralos.mviarchitecture.persistence.AppDatabase.Companion.DATABASE_NAM
 import com.cralos.mviarchitecture.persistence.AuthTokenDao
 import com.cralos.mviarchitecture.util.Constants
 import com.cralos.mviarchitecture.util.LiveDataCallAdapterFactory
+import com.cralos.mviarchitecture.util.PreferenceKeys
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import dagger.Module
@@ -22,6 +25,18 @@ import javax.inject.Singleton
 
 @Module
 class AppModule {
+
+    @Singleton
+    @Provides
+    fun provideSharePreferences(application: Application) : SharedPreferences{
+        return application.getSharedPreferences(PreferenceKeys.APP_PREFERENCES,Context.MODE_PRIVATE)
+    }
+
+    @Singleton
+    @Provides
+    fun provideSharePrefsEditor(sharedPreferences: SharedPreferences) : SharedPreferences.Editor{
+        return sharedPreferences.edit()
+    }
 
     @Singleton
     @Provides
