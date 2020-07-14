@@ -4,6 +4,10 @@ import com.cralos.mviarchitecture.di.auth.AuthFragmentBuildersModule
 import com.cralos.mviarchitecture.di.auth.AuthModule
 import com.cralos.mviarchitecture.di.auth.AuthScope
 import com.cralos.mviarchitecture.di.auth.AuthViewModelModule
+import com.cralos.mviarchitecture.di.main.MainFragmentBuildersModule
+import com.cralos.mviarchitecture.di.main.MainModule
+import com.cralos.mviarchitecture.di.main.MainScope
+import com.cralos.mviarchitecture.di.main.MainViewModelModule
 import com.cralos.mviarchitecture.ui.auth.AuthActivity
 import com.cralos.mviarchitecture.ui.main.MainActivity
 import dagger.Module
@@ -20,7 +24,10 @@ abstract class ActivityBuildersModule {
     )
     abstract fun contributeAuthActivity(): AuthActivity
 
-    @ContributesAndroidInjector
+    @MainScope
+    @ContributesAndroidInjector(
+        modules = [MainModule::class, MainFragmentBuildersModule::class, MainViewModelModule::class]
+    )
     abstract fun contributeMainActivity(): MainActivity
 
 }
