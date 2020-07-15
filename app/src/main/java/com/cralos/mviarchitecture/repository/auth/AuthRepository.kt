@@ -48,8 +48,8 @@ constructor(
             return returnErrorResponse(loginFieldErrors, ResponseType.Dialog())
         }
 
-        return object : NetworkBoundResource<LoginResponse, AuthViewState>(
-            sessionManager.isConnectedToTheInternet(), true
+        return object : NetworkBoundResource<LoginResponse, Any, AuthViewState>(
+            sessionManager.isConnectedToTheInternet(), true, false
         ) {
 
             // nt use in this case
@@ -114,6 +114,16 @@ constructor(
                 repositoryJob = job
             }
 
+            //Not use in this case
+            override fun loadFromCache(): LiveData<AuthViewState> {
+                return AbsentLiveData.create()
+            }
+
+            //Not use in this case
+            override suspend fun updateLocalDb(cacheObject: Any?) {
+
+            }
+
         }.asLiveData()
 
     }
@@ -131,9 +141,19 @@ constructor(
             return returnErrorResponse(registrationFieldErrors, ResponseType.Dialog())
         }
 
-        return object : NetworkBoundResource<RegistrationResponse, AuthViewState>(
-            sessionManager.isConnectedToTheInternet(), true
+        return object : NetworkBoundResource<RegistrationResponse,Any, AuthViewState>(
+            sessionManager.isConnectedToTheInternet(), true,false
         ) {
+
+            //Not use in this case
+            override fun loadFromCache(): LiveData<AuthViewState> {
+                return AbsentLiveData.create()
+            }
+
+            //Not use in this case
+            override suspend fun updateLocalDb(cacheObject: Any?) {
+
+            }
 
             override suspend fun createCacheRequestAndReturn() {
                 TODO("Not yet implemented")
@@ -204,10 +224,21 @@ constructor(
             return returnNoTokenFound()
         }
 
-        return object : NetworkBoundResource<Void, AuthViewState>(
+        return object : NetworkBoundResource<Void,Any, AuthViewState>(
             sessionManager.isConnectedToTheInternet(),
-            false
+            false,false
         ) {
+
+            //Not use in this case
+            override fun loadFromCache(): LiveData<AuthViewState> {
+                return AbsentLiveData.create()
+            }
+
+            //Not use in this case
+            override suspend fun updateLocalDb(cacheObject: Any?) {
+
+            }
+
             override suspend fun createCacheRequestAndReturn() {
                 accountPropertiesDao.searchByEmail(previousAuthUserEmail).let { accountProperties ->
                     Log.d(TAG, "checkPreviusAtuhUser: searching for token: $accountProperties ")

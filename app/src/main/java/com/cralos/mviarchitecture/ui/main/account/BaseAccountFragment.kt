@@ -13,8 +13,10 @@ import com.cralos.mviarchitecture.R
 import com.cralos.mviarchitecture.ui.DataStateChangeListener
 import com.cralos.mviarchitecture.viewmodels.ViewModelProviderFactory
 import dagger.android.support.DaggerFragment
+import kotlinx.coroutines.InternalCoroutinesApi
 import javax.inject.Inject
 
+@InternalCoroutinesApi
 abstract class BaseAccountFragment : DaggerFragment(){
 
     val TAG: String = "AppDebug"

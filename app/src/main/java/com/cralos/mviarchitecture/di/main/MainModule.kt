@@ -6,8 +6,10 @@ import com.cralos.mviarchitecture.repository.main.AccountRepository
 import com.cralos.mviarchitecture.session.SessionManager
 import dagger.Module
 import dagger.Provides
+import kotlinx.coroutines.InternalCoroutinesApi
 import retrofit2.Retrofit
 
+@InternalCoroutinesApi
 @Module
 class MainModule {
 

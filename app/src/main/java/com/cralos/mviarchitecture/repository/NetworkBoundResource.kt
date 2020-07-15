@@ -17,10 +17,11 @@ import kotlinx.coroutines.*
 
 /**ResponseObject -> respuesta de retrofit*/
 @InternalCoroutinesApi
-abstract class NetworkBoundResource<ResponseObject, ViewStateType>
+abstract class NetworkBoundResource<ResponseObject, CacheObject, ViewStateType>
     (
     isNetworkAvailable: Boolean, // is their a network connection?
-    isNetworkRequest: Boolean    // is this a network request
+    isNetworkRequest: Boolean,    // is this a network request
+    shouldLoadFromCache: Boolean  // should the cache data be loaded?
 ) {
 
     private val TAG: String = "AppDebug"
@@ -33,7 +34,15 @@ abstract class NetworkBoundResource<ResponseObject, ViewStateType>
         setJob(initNewJob())
         setValue(DataState.loading(isLoading = true, cachedData = null))
 
-        if (isNetworkRequest){
+        if (shouldLoadFromCache) {
+            val dbSource = loadFromCache()
+            result.addSource(dbSource) {
+                result.removeSource(dbSource)
+                setValue(DataState.loading(isLoading = true, cachedData = it))
+            }
+        }
+
+        if (isNetworkRequest) {
             if (isNetworkAvailable) {
                 coroutineScope.launch {
 
@@ -63,10 +72,13 @@ abstract class NetworkBoundResource<ResponseObject, ViewStateType>
                     }
                 }
             } else {
-                onErrorReturn(ErrorHandling.UNABLE_TODO_OPERATION_WO_INTERNET, shouldUseDialog = true, shouldUseToast = false)
+                onErrorReturn(
+                    ErrorHandling.UNABLE_TODO_OPERATION_WO_INTERNET,
+                    shouldUseDialog = true,
+                    shouldUseToast = false
+                )
             }
-        }
-        else{
+        } else {
             coroutineScope.launch {
                 //Fake delay for testing cache
                 delay(TESTING_CACHE_DELAY)
@@ -155,6 +167,10 @@ abstract class NetworkBoundResource<ResponseObject, ViewStateType>
     abstract suspend fun handleApiSuccessResponse(response: GenericApiResponse.ApiSuccessResponse<ResponseObject>)
 
     abstract fun createCall(): LiveData<GenericApiResponse<ResponseObject>>
+
+    abstract fun loadFromCache(): LiveData<ViewStateType>
+
+    abstract suspend fun updateLocalDb(cacheObject: CacheObject?)
 
     abstract fun setJob(job: Job)
 
