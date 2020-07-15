@@ -27,7 +27,7 @@
     <fragment
         android:id="@+id/changePasswordFragment"
         android:name="com.cralos.mviarchitecture.ui.main.account.ChangePasswordFragment"
-        android:label="fragment_change_password"
+        android:label="Change password"
         tools:layout="@layout/fragment_change_password">
         <action
             android:id="@+id/action_changePasswordFragment_to_accountFragment"
@@ -42,7 +42,7 @@
     <fragment
         android:id="@+id/updateAccountFragment"
         android:name="com.cralos.mviarchitecture.ui.main.account.UpdateAccountFragment"
-        android:label="fragment_update_account"
+        android:label="Update"
         tools:layout="@layout/fragment_update_account">
         <action
             android:id="@+id/action_updateAccountFragment_to_accountFragment"

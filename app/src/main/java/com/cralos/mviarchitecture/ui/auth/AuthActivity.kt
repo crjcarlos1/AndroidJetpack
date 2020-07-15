@@ -87,8 +87,13 @@ class AuthActivity : BaseActivity(), NavController.OnDestinationChangedListener 
         viewModel.cancelActiveJobs()
     }
 
-    fun checkPreviousAuthUser(){
+    fun checkPreviousAuthUser() {
         viewModel.setStateEvent(AuthStateEvent.CheckPreviosAuthEvent())
+    }
+
+    //ignore
+    override fun expandAppBar() {
+        //findViewById<AppBarLayout>(R.id.app_bar).setExpanded(true)
     }
 
 }
