@@ -24,7 +24,7 @@ class AccountFragment : BaseAccountFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        setHasOptionsMenu(true)
         change_password.setOnClickListener {
             findNavController().navigate(R.id.action_accountFragment_to_changePasswordFragment)
         }

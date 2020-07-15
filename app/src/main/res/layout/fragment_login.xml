@@ -67,6 +67,7 @@
                 android:id="@+id/input_password"
                 android:textColor="#000"
                 android:hint="@string/field_password"
+                android:text="logitech1991"
                 android:inputType="textPassword"
                 />
 

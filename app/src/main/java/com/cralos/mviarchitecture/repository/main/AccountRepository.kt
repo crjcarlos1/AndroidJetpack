@@ -3,6 +3,7 @@ package com.cralos.mviarchitecture.repository.main
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.switchMap
+import com.cralos.mviarchitecture.api.GenericResponse
 import com.cralos.mviarchitecture.api.main.OpenApiMainService
 import com.cralos.mviarchitecture.models.AccountProperties
 import com.cralos.mviarchitecture.models.AuthToken
@@ -10,7 +11,10 @@ import com.cralos.mviarchitecture.persistence.AccountPropertiesDao
 import com.cralos.mviarchitecture.repository.NetworkBoundResource
 import com.cralos.mviarchitecture.session.SessionManager
 import com.cralos.mviarchitecture.ui.DataState
+import com.cralos.mviarchitecture.ui.Response
+import com.cralos.mviarchitecture.ui.ResponseType
 import com.cralos.mviarchitecture.ui.main.account.state.AccountViewState
+import com.cralos.mviarchitecture.util.AbsentLiveData
 import com.cralos.mviarchitecture.util.GenericApiResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.InternalCoroutinesApi
@@ -33,7 +37,7 @@ constructor(
     fun getAccountProperties(authToken: AuthToken): LiveData<DataState<AccountViewState>> {
         return object :
             NetworkBoundResource<AccountProperties, AccountProperties, AccountViewState>(
-                sessionManager.isConnectedToTheInternet(), true, true
+                sessionManager.isConnectedToTheInternet(), true, false,true
             ) {
 
             override fun loadFromCache(): LiveData<AccountViewState> {
@@ -84,8 +88,73 @@ constructor(
         }.asLiveData()
     }
 
+    fun saveAccountProperties(
+        authToken: AuthToken,
+        accountProperties: AccountProperties
+    ): LiveData<DataState<AccountViewState>> {
+        return object : NetworkBoundResource<GenericResponse, Any, AccountViewState>(
+            isNetworkAvailable = sessionManager.isConnectedToTheInternet(),
+            isNetworkRequest = true,
+            shouldCancelIfNoInternet = true,
+            shouldLoadFromCache = false
+        ) {
+
+            //Not aplicable
+            override suspend fun createCacheRequestAndReturn() {
+                TODO("Not yet implemented")
+            }
+
+            override suspend fun handleApiSuccessResponse(response: GenericApiResponse.ApiSuccessResponse<GenericResponse>) {
+                updateLocalDb(null)
+                withContext(Dispatchers.Main) {
+                    //finish with success response
+                    onCompleteJob(
+                        DataState.data(
+                            data = null,
+                            response = Response(response.body.response, ResponseType.Toast())
+                        )
+                    )
+                }
+            }
+
+            override fun createCall(): LiveData<GenericApiResponse<GenericResponse>> {
+                return openApiMainService.saveAccountProperties(
+                    "Token ${authToken.token}",
+                    accountProperties.email,
+                    accountProperties.username
+                )
+            }
+
+            //not use in this case
+            override fun loadFromCache(): LiveData<AccountViewState> {
+                return AbsentLiveData.create()
+            }
+
+            override suspend fun updateLocalDb(cacheObject: Any?) {
+                return accountPropertiesDao.updateAccountProperties(
+                    accountProperties.pk,
+                    accountProperties.email,
+                    accountProperties.username
+                )
+            }
+
+            override fun setJob(job: Job) {
+                repositoryJob?.cancel()
+                repositoryJob = job
+            }
+        }.asLiveData()
+    }
+
     fun cancelActiveJobs() {
         Log.d(TAG, "AuthRepository: canceling on going jobs...")
     }
 
 }
+
+
+
+
+
+
+
+
