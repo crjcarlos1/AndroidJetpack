@@ -1,7 +1,8 @@
 package com.cralos.mviarchitecture.ui
 
+import android.content.Context
 import android.util.Log
-import android.widget.Toast
+import android.view.inputmethod.InputMethodManager
 import com.cralos.mviarchitecture.session.SessionManager
 import dagger.android.support.DaggerAppCompatActivity
 import kotlinx.coroutines.Dispatchers
@@ -26,7 +27,7 @@ abstract class BaseActivity : DaggerAppCompatActivity(), DataStateChangeListener
                 }
 
                 it.data?.let {
-                    it.response?.let {responseEvent ->
+                    it.response?.let { responseEvent ->
                         handleStateResponse(responseEvent)
                     }
                 }
@@ -37,18 +38,18 @@ abstract class BaseActivity : DaggerAppCompatActivity(), DataStateChangeListener
 
     private fun handleStateResponse(event: Event<Response>) {
         event.getContentIfNotHandled()?.let {
-            when(it.responseType){
-                is ResponseType.Toast->{
-                    it.message?.let {message ->
+            when (it.responseType) {
+                is ResponseType.Toast -> {
+                    it.message?.let { message ->
                         displayToast(message)
                     }
                 }
-                is ResponseType.Dialog->{
-                    it.message?.let {message ->
+                is ResponseType.Dialog -> {
+                    it.message?.let { message ->
                         displaySuccessDialog(message)
                     }
                 }
-                is ResponseType.None->{
+                is ResponseType.None -> {
                     Log.e(TAG, "handleStateError: ${it.message}")
                 }
             }
@@ -57,18 +58,18 @@ abstract class BaseActivity : DaggerAppCompatActivity(), DataStateChangeListener
 
     private fun handleStateError(event: Event<StateError>) {
         event.getContentIfNotHandled()?.let {
-            when(it.response.responseType){
-                is ResponseType.Toast->{
-                    it.response.message?.let {message ->
+            when (it.response.responseType) {
+                is ResponseType.Toast -> {
+                    it.response.message?.let { message ->
                         displayToast(message)
                     }
                 }
-                is ResponseType.Dialog->{
-                    it.response.message?.let {message ->
+                is ResponseType.Dialog -> {
+                    it.response.message?.let { message ->
                         displayErrorDialog(message)
                     }
                 }
-                is ResponseType.None->{
+                is ResponseType.None -> {
                     Log.e(TAG, "handleStateError: ${it.response.message}")
                 }
             }
@@ -76,5 +77,13 @@ abstract class BaseActivity : DaggerAppCompatActivity(), DataStateChangeListener
     }
 
     abstract fun displayProgressBar(bool: Boolean)
+
+    override fun hideSoftKeyBoard() {
+        if (currentFocus != null) {
+            val inputMethodManager =
+                getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            inputMethodManager.hideSoftInputFromWindow(currentFocus!!.windowToken, 0)
+        }
+    }
 
 }

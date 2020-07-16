@@ -63,6 +63,7 @@ class UpdateAccountFragment : BaseAccountFragment() {
             input_email.text.toString(),
             input_username.text.toString()
         ))
+        stateChangeListener.hideSoftKeyBoard()
     }
 
     private fun setAccountDatFields(accountProperties: AccountProperties) {

@@ -45,6 +45,7 @@
                 android:id="@+id/input_email"
                 android:textColor="#000"
                 android:hint="@string/email_field"
+                android:text="crjcarlos.1@gmail.com"
                 android:inputType="textEmailAddress"
                 />
 
