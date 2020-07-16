@@ -1,6 +1,5 @@
 package com.cralos.mviarchitecture.repository.main
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.switchMap
 import com.cralos.mviarchitecture.api.GenericResponse
@@ -8,6 +7,7 @@ import com.cralos.mviarchitecture.api.main.OpenApiMainService
 import com.cralos.mviarchitecture.models.AccountProperties
 import com.cralos.mviarchitecture.models.AuthToken
 import com.cralos.mviarchitecture.persistence.AccountPropertiesDao
+import com.cralos.mviarchitecture.repository.JobManager
 import com.cralos.mviarchitecture.repository.NetworkBoundResource
 import com.cralos.mviarchitecture.session.SessionManager
 import com.cralos.mviarchitecture.ui.DataState
@@ -29,10 +29,9 @@ constructor(
     val openApiMainService: OpenApiMainService,
     val accountPropertiesDao: AccountPropertiesDao,
     val sessionManager: SessionManager
-) {
+) : JobManager("AccountRepository") {
 
     private val TAG = "AppDebug"
-    private var repositoryJob: Job? = null
 
     fun getAccountProperties(authToken: AuthToken): LiveData<DataState<AccountViewState>> {
         return object :
@@ -81,8 +80,7 @@ constructor(
             }
 
             override fun setJob(job: Job) {
-                repositoryJob?.cancel()
-                repositoryJob = job
+                addJob("getAccountProperties", job)
             }
 
         }.asLiveData()
@@ -139,8 +137,7 @@ constructor(
             }
 
             override fun setJob(job: Job) {
-                repositoryJob?.cancel()
-                repositoryJob = job
+                addJob("saveAccountProperties", job)
             }
         }.asLiveData()
     }
@@ -161,12 +158,12 @@ constructor(
             }
 
             override suspend fun handleApiSuccessResponse(response: GenericApiResponse.ApiSuccessResponse<GenericResponse>) {
-                withContext(Dispatchers.Main){
+                withContext(Dispatchers.Main) {
                     // finish with success response
                     onCompleteJob(
                         DataState.data(
                             data = null,
-                            response = Response(response.body.response,ResponseType.Toast())
+                            response = Response(response.body.response, ResponseType.Toast())
                         )
                     )
                 }
@@ -189,14 +186,9 @@ constructor(
             }
 
             override fun setJob(job: Job) {
-                repositoryJob?.cancel()
-                repositoryJob = job
+                addJob("updatePassword", job)
             }
         }.asLiveData()
-    }
-
-    fun cancelActiveJobs() {
-        Log.d(TAG, "AuthRepository: canceling on going jobs...")
     }
 
 }

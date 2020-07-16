@@ -33,6 +33,7 @@ abstract class BaseAccountFragment : DaggerFragment(){
         viewModel = activity?.run {
             ViewModelProvider(this,providerFactory).get(AccountViewModel::class.java)
         } ?: throw Exception("Invalid activity")
+        cancelActiveJobs()
     }
 
     override fun onAttach(context: Context) {
@@ -47,6 +48,10 @@ abstract class BaseAccountFragment : DaggerFragment(){
     fun setupActionBarWithNavController(fragmentId : Int, activity : AppCompatActivity){
         val appBarConfiguration = AppBarConfiguration(setOf(fragmentId))
         NavigationUI.setupActionBarWithNavController(activity,findNavController(),appBarConfiguration)
+    }
+
+    fun cancelActiveJobs() {
+        viewModel.cancelActiveJobs()
     }
 
 }

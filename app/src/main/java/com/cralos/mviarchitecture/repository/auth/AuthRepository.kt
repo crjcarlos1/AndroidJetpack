@@ -10,6 +10,7 @@ import com.cralos.mviarchitecture.models.AccountProperties
 import com.cralos.mviarchitecture.models.AuthToken
 import com.cralos.mviarchitecture.persistence.AccountPropertiesDao
 import com.cralos.mviarchitecture.persistence.AuthTokenDao
+import com.cralos.mviarchitecture.repository.JobManager
 import com.cralos.mviarchitecture.repository.NetworkBoundResource
 import com.cralos.mviarchitecture.session.SessionManager
 import com.cralos.mviarchitecture.ui.DataState
@@ -38,9 +39,8 @@ constructor(
     val sessionManager: SessionManager,
     val sharedPreferences: SharedPreferences,
     val sharePresEditor: SharedPreferences.Editor
-) {
+) : JobManager("AuthRepository"){
     private val TAG = "AppDebug"
-    private var repositoryJob: Job? = null
 
     fun attempLogin(email: String, password: String): LiveData<DataState<AuthViewState>> {
         val loginFieldErrors = LoginFields(email, password).isValidForLogin()
@@ -110,8 +110,7 @@ constructor(
             }
 
             override fun setJob(job: Job) {
-                repositoryJob?.cancel()
-                repositoryJob = job
+                addJob("attempLogin",job)
             }
 
             //Not use in this case
@@ -208,8 +207,7 @@ constructor(
             }
 
             override fun setJob(job: Job) {
-                repositoryJob?.cancel()
-                repositoryJob = job
+                addJob("attempRegistration",job)
             }
         }.asLiveData()
 
@@ -280,8 +278,7 @@ constructor(
             }
 
             override fun setJob(job: Job) {
-                repositoryJob?.cancel()
-                repositoryJob = job
+                addJob("checkPreviusAtuhUser",job)
             }
         }.asLiveData()
 
@@ -297,11 +294,6 @@ constructor(
                 )
             }
         }
-    }
-
-    fun cancelActiveJobs() {
-        Log.d(TAG, "AuthRepository: Cancelling on going jobs...")
-        repositoryJob?.cancel()
     }
 
     private fun returnErrorResponse(

@@ -11,10 +11,13 @@ import androidx.navigation.NavController
 import com.cralos.mviarchitecture.R
 import com.cralos.mviarchitecture.ui.BaseActivity
 import com.cralos.mviarchitecture.ui.auth.AuthActivity
+import com.cralos.mviarchitecture.ui.main.account.BaseAccountFragment
 import com.cralos.mviarchitecture.ui.main.account.ChangePasswordFragment
 import com.cralos.mviarchitecture.ui.main.account.UpdateAccountFragment
+import com.cralos.mviarchitecture.ui.main.blog.BaseBlogFragment
 import com.cralos.mviarchitecture.ui.main.blog.UpdateBlogFragment
 import com.cralos.mviarchitecture.ui.main.blog.ViewBlogFragment
+import com.cralos.mviarchitecture.ui.main.create_blog.BaseCreateBlogFragment
 import com.cralos.mviarchitecture.util.BottomNavController
 import com.cralos.mviarchitecture.util.setUpNavigation
 import com.google.android.material.appbar.AppBarLayout
@@ -42,9 +45,9 @@ class MainActivity : BaseActivity(), BottomNavController.NavGraphProvider,
         setupActionBar()
 
         bottomNavigationView = findViewById(R.id.bottom_navigation_view)
-        bottomNavigationView.setUpNavigation(bottomNavController,this)
+        bottomNavigationView.setUpNavigation(bottomNavController, this)
 
-        if (savedInstanceState == null){
+        if (savedInstanceState == null) {
             bottomNavController.onNavigationItemSelected()
         }
 
@@ -108,6 +111,26 @@ class MainActivity : BaseActivity(), BottomNavController.NavGraphProvider,
 
     override fun onGraphChange() {
         expandAppBar()
+        cancelActiveJobs()
+    }
+
+    private fun cancelActiveJobs() {
+        val fragments =
+            bottomNavController.fragmentManager.findFragmentById(bottomNavController.containerId)
+                ?.childFragmentManager
+                ?.fragments
+
+        if (fragments != null) {
+            for (fragment in fragments) {
+                when (fragment) {
+                    is BaseAccountFragment -> fragment.cancelActiveJobs()
+                    is BaseBlogFragment -> fragment.cancelActiveJobs()
+                    is BaseCreateBlogFragment -> fragment.cancelActiveJobs()
+                }
+            }
+        }
+
+        displayProgressBar(false)
     }
 
     override fun onReselectNavItem(navController: NavController, fragment: Fragment) =

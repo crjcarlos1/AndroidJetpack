@@ -6,6 +6,7 @@ import com.cralos.mviarchitecture.repository.main.AccountRepository
 import com.cralos.mviarchitecture.session.SessionManager
 import com.cralos.mviarchitecture.ui.BaseViewModel
 import com.cralos.mviarchitecture.ui.DataState
+import com.cralos.mviarchitecture.ui.auth.state.AuthStateEvent
 import com.cralos.mviarchitecture.ui.main.account.state.AccountStateEvent
 import com.cralos.mviarchitecture.ui.main.account.state.AccountViewState
 import com.cralos.mviarchitecture.util.AbsentLiveData
@@ -71,6 +72,20 @@ constructor(
 
     fun logout() {
         sessionManager.logout()
+    }
+
+    fun cancelActiveJobs(){
+        handlePendingData()
+        accountRepository.cancelActiveJobs()
+    }
+
+    fun handlePendingData(){
+        setStateEvent(AccountStateEvent.None())
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        cancelActiveJobs()
     }
 
 }

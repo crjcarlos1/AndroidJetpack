@@ -21,6 +21,7 @@ abstract class BaseCreateBlogFragment : DaggerFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupActionBarWithNavController(R.id.createBlogFragment, activity as AppCompatActivity)
+        cancelActiveJobs()
     }
 
     override fun onAttach(context: Context) {
@@ -32,8 +33,16 @@ abstract class BaseCreateBlogFragment : DaggerFragment() {
         }
     }
 
-    fun setupActionBarWithNavController(fragmentId : Int, activity : AppCompatActivity){
+    fun setupActionBarWithNavController(fragmentId: Int, activity: AppCompatActivity) {
         val appBarConfiguration = AppBarConfiguration(setOf(fragmentId))
-        NavigationUI.setupActionBarWithNavController(activity,findNavController(),appBarConfiguration)
+        NavigationUI.setupActionBarWithNavController(
+            activity,
+            findNavController(),
+            appBarConfiguration
+        )
+    }
+
+    fun cancelActiveJobs() {
+        //   viewModel.cancelActiveJobs()
     }
 }
