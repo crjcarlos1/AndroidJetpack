@@ -37,7 +37,7 @@ constructor(
     fun getAccountProperties(authToken: AuthToken): LiveData<DataState<AccountViewState>> {
         return object :
             NetworkBoundResource<AccountProperties, AccountProperties, AccountViewState>(
-                sessionManager.isConnectedToTheInternet(), true, false,true
+                sessionManager.isConnectedToTheInternet(), true, false, true
             ) {
 
             override fun loadFromCache(): LiveData<AccountViewState> {
@@ -136,6 +136,56 @@ constructor(
                     accountProperties.email,
                     accountProperties.username
                 )
+            }
+
+            override fun setJob(job: Job) {
+                repositoryJob?.cancel()
+                repositoryJob = job
+            }
+        }.asLiveData()
+    }
+
+    fun updatePassword(
+        authToken: AuthToken,
+        currentPassword: String,
+        newPassword: String,
+        confirmNewPassword: String
+    ): LiveData<DataState<AccountViewState>> {
+        return object : NetworkBoundResource<GenericResponse, Any, AccountViewState>(
+            sessionManager.isConnectedToTheInternet(),
+            true, true, false
+        ) {
+            //not aplicable
+            override suspend fun createCacheRequestAndReturn() {
+                TODO("Not yet implemented")
+            }
+
+            override suspend fun handleApiSuccessResponse(response: GenericApiResponse.ApiSuccessResponse<GenericResponse>) {
+                withContext(Dispatchers.Main){
+                    // finish with success response
+                    onCompleteJob(
+                        DataState.data(
+                            data = null,
+                            response = Response(response.body.response,ResponseType.Toast())
+                        )
+                    )
+                }
+            }
+
+            override fun createCall(): LiveData<GenericApiResponse<GenericResponse>> {
+                return openApiMainService.updatePassword(
+                    "Token ${authToken.token!!}", currentPassword, newPassword, confirmNewPassword
+                )
+            }
+
+            //Not applicable in this case
+            override fun loadFromCache(): LiveData<AccountViewState> {
+                return AbsentLiveData.create()
+            }
+
+            //Not applicable in this case
+            override suspend fun updateLocalDb(cacheObject: Any?) {
+
             }
 
             override fun setJob(job: Job) {
