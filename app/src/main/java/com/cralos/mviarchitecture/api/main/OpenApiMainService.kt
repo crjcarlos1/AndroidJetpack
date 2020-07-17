@@ -2,6 +2,7 @@ package com.cralos.mviarchitecture.api.main
 
 import androidx.lifecycle.LiveData
 import com.cralos.mviarchitecture.api.GenericResponse
+import com.cralos.mviarchitecture.api.main.responses.BlogListSearchResponse
 import com.cralos.mviarchitecture.models.AccountProperties
 import com.cralos.mviarchitecture.util.GenericApiResponse
 import retrofit2.http.*
@@ -27,5 +28,11 @@ interface OpenApiMainService {
         @Field("new_password") newPassword: String,
         @Field("confirm_new_password") confirmNewPassword: String
     ): LiveData<GenericApiResponse<GenericResponse>>
+
+    @GET("blog/list")
+    fun searchListBlogPosts(
+        @Header("Authorization") authorization: String,
+        @Query("search") query: String
+    ): LiveData<GenericApiResponse<BlogListSearchResponse>>
 
 }

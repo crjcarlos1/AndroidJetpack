@@ -1,14 +1,19 @@
 package com.cralos.mviarchitecture.ui.main.blog
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.cralos.mviarchitecture.R
+import com.cralos.mviarchitecture.ui.main.blog.state.BlogStateEvent
 import kotlinx.android.synthetic.main.fragment_blog.*
+import kotlinx.coroutines.InternalCoroutinesApi
 
-class BlogFragment : BaseBlogFragment(){
+@InternalCoroutinesApi
+class BlogFragment : BaseBlogFragment() {
 
 
     override fun onCreateView(
@@ -26,5 +31,33 @@ class BlogFragment : BaseBlogFragment(){
             findNavController().navigate(R.id.action_blogFragment_to_viewBlogFragment)
         }
 
+        subscribeObservers()
+        executeSearch()
     }
+
+    private fun executeSearch(){
+        viewModel.setQuery("")
+        viewModel.setStateEvent(BlogStateEvent.BlogSearchEvent())
+    }
+
+    private fun subscribeObservers() {
+        viewModel.dataState.observe(viewLifecycleOwner, Observer { dataState ->
+            if (dataState != null) {
+                stateChangeListener.onDataStateChange(dataState)
+                dataState.data?.let {
+                    it.data?.let { event ->
+                        event.getContentIfNotHandled()?.let {
+                            Log.d(TAG, "BlogFragment: dataState: $dataState")
+                            viewModel.setBlogListData(it.blogFields.blogList)
+                        }
+                    }
+                }
+            }
+        })
+
+        viewModel.viewState.observe(viewLifecycleOwner, Observer {viewState ->
+            Log.d(TAG, "BlogFragment: viewState: $viewState")
+        })
+    }
+
 }

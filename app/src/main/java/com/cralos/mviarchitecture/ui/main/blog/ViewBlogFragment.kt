@@ -4,7 +4,9 @@ import android.os.Bundle
 import android.view.*
 import androidx.navigation.fragment.findNavController
 import com.cralos.mviarchitecture.R
+import kotlinx.coroutines.InternalCoroutinesApi
 
+@InternalCoroutinesApi
 class ViewBlogFragment : BaseBlogFragment(){
 
 

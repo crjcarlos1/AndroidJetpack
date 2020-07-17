@@ -11,8 +11,10 @@ import com.cralos.mviarchitecture.ui.DataState
 import com.cralos.mviarchitecture.ui.main.blog.state.BlogStateEvent
 import com.cralos.mviarchitecture.ui.main.blog.state.BlogViewState
 import com.cralos.mviarchitecture.util.AbsentLiveData
+import kotlinx.coroutines.InternalCoroutinesApi
 import javax.inject.Inject
 
+@InternalCoroutinesApi
 class BlogViewModel
 @Inject
 constructor(
@@ -29,7 +31,12 @@ constructor(
     override fun handleStateEvent(stateEvent: BlogStateEvent): LiveData<DataState<BlogViewState>> {
         when (stateEvent) {
             is BlogStateEvent.BlogSearchEvent -> {
-                return AbsentLiveData.create()
+                return sessionManager.cachedToken.value?.let { authToken ->
+                    blogRepositroy.searchBlogRepository(
+                        authToken,
+                        viewState.value!!.blogFields.searchQuery
+                    )
+                } ?: AbsentLiveData.create()
             }
             is BlogStateEvent.None -> {
                 return AbsentLiveData.create()
@@ -39,9 +46,9 @@ constructor(
 
     fun setQuery(query: String) {
         val update = getCurrentViewStateOrNew()
-        if (query.equals(update.blogFields.searchQuery)) {
-            return
-        }
+        //if (query.equals(update.blogFields.searchQuery)) {
+        //    return
+        //}
         update.blogFields.searchQuery = query
         _viewState.value = update
     }
@@ -52,12 +59,12 @@ constructor(
         _viewState.value = update
     }
 
-    fun cancelActiveJobs(){
+    fun cancelActiveJobs() {
         blogRepositroy.cancelActiveJobs()
         handlePendingData()
     }
 
-    fun handlePendingData(){
+    fun handlePendingData() {
         setStateEvent(BlogStateEvent.None())
     }
 
