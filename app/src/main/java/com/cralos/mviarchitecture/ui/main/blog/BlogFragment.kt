@@ -21,8 +21,7 @@ import javax.inject.Inject
 @InternalCoroutinesApi
 class BlogFragment : BaseBlogFragment(), BlogListAdapter.Interaction {
 
-    @Inject
-    lateinit var requestManager: RequestManager
+
 
     lateinit var recyclerAdapter: BlogListAdapter
 
@@ -110,6 +109,8 @@ class BlogFragment : BaseBlogFragment(), BlogListAdapter.Interaction {
 
     override fun onItemSelected(position: Int, item: BlogPost) {
         Log.d(TAG, "onItemSelected: position,blogPost: $position, $item")
+        viewModel.setBlogPost(item)
+        findNavController().navigate(R.id.action_blogFragment_to_viewBlogFragment)
     }
 
 }
