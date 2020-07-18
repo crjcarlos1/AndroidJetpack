@@ -9,8 +9,6 @@ import com.cralos.mviarchitecture.ui.auth.state.AuthStateEvent
 import com.cralos.mviarchitecture.ui.auth.state.AuthViewState
 import com.cralos.mviarchitecture.ui.auth.state.LoginFields
 import com.cralos.mviarchitecture.ui.auth.state.RegistrationFields
-import com.cralos.mviarchitecture.ui.main.account.state.AccountStateEvent
-import com.cralos.mviarchitecture.util.AbsentLiveData
 import kotlinx.coroutines.InternalCoroutinesApi
 import javax.inject.Inject
 
@@ -40,11 +38,11 @@ constructor(
             is AuthStateEvent.CheckPreviosAuthEvent -> {
                 return authRepository.checkPreviusAtuhUser()
             }
-            is AuthStateEvent.None->{
-                return object : LiveData<DataState<AuthViewState>>(){
+            is AuthStateEvent.None -> {
+                return object : LiveData<DataState<AuthViewState>>() {
                     override fun onActive() {
                         super.onActive()
-                        value= DataState.data(null,null)
+                        value = DataState.data(null, null)
                     }
                 }
             }
@@ -61,7 +59,7 @@ constructor(
             return
         }
         update.registrationFields = registrationFields
-        _viewState.value = update
+        setViewState(update)
     }
 
     fun setLoginFields(loginFields: LoginFields) {
@@ -70,7 +68,7 @@ constructor(
             return
         }
         update.loginFields = loginFields
-        _viewState.value = update
+        setViewState(update)
     }
 
     fun setAuthToken(authToken: AuthToken) {
@@ -79,15 +77,15 @@ constructor(
             return
         }
         update.authToken = authToken
-        _viewState.value = update
+        setViewState(update)
     }
 
-    fun cancelActiveJobs(){
+    fun cancelActiveJobs() {
         handlePendingData()
         authRepository.cancelActiveJobs()
     }
 
-    fun handlePendingData(){
+    fun handlePendingData() {
         setStateEvent(AuthStateEvent.None())
     }
 

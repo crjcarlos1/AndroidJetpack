@@ -8,7 +8,7 @@ data class BlogViewState(
     var blogFields: BlogFields = BlogFields(),
 
     //ViewBlogFragment vars
-    var viewBlogFileds : ViewBlogFields= ViewBlogFields()
+    var viewBlogFileds: ViewBlogFields = ViewBlogFields()
 
     //UpdateBlogFragment vars
 
@@ -16,7 +16,10 @@ data class BlogViewState(
 
     data class BlogFields(
         var blogList: List<BlogPost> = ArrayList<BlogPost>(),
-        var searchQuery: String = ""
+        var searchQuery: String = "",
+        var page: Int = 1,
+        var isQueryInProgress: Boolean = false,
+        var isQueryExhausted: Boolean = false
     )
 
     data class ViewBlogFields(

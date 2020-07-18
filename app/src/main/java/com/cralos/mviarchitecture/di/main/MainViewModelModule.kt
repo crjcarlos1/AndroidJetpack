@@ -3,7 +3,7 @@ package com.cralos.mviarchitecture.di.main
 import androidx.lifecycle.ViewModel
 import com.cralos.mviarchitecture.di.ViewModelKey
 import com.cralos.mviarchitecture.ui.main.account.AccountViewModel
-import com.cralos.mviarchitecture.ui.main.blog.BlogViewModel
+import com.cralos.mviarchitecture.ui.main.blog.viewmodel.BlogViewModel
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap

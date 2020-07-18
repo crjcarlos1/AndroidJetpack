@@ -9,18 +9,18 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.RequestManager
 import com.cralos.mviarchitecture.R
 import com.cralos.mviarchitecture.models.BlogPost
-import com.cralos.mviarchitecture.ui.main.blog.state.BlogStateEvent
+import com.cralos.mviarchitecture.ui.DataState
+import com.cralos.mviarchitecture.ui.main.blog.state.BlogViewState
+import com.cralos.mviarchitecture.ui.main.blog.viewmodel.*
+import com.cralos.mviarchitecture.util.ErrorHandling
 import com.cralos.mviarchitecture.util.TopSpacingItemDecoration
 import kotlinx.android.synthetic.main.fragment_blog.*
 import kotlinx.coroutines.InternalCoroutinesApi
-import javax.inject.Inject
 
 @InternalCoroutinesApi
 class BlogFragment : BaseBlogFragment(), BlogListAdapter.Interaction {
-
 
 
     lateinit var recyclerAdapter: BlogListAdapter
@@ -38,7 +38,9 @@ class BlogFragment : BaseBlogFragment(), BlogListAdapter.Interaction {
 
         initRecyclerView()
         subscribeObservers()
-        executeSearch()
+        if (savedInstanceState == null) {
+            viewModel.loadFirstPage()
+        }
     }
 
     override fun onDestroy() {
@@ -47,23 +49,11 @@ class BlogFragment : BaseBlogFragment(), BlogListAdapter.Interaction {
         blog_post_recyclerview.adapter = null
     }
 
-    private fun executeSearch() {
-        viewModel.setQuery("")
-        viewModel.setStateEvent(BlogStateEvent.BlogSearchEvent())
-    }
-
     private fun subscribeObservers() {
         viewModel.dataState.observe(viewLifecycleOwner, Observer { dataState ->
             if (dataState != null) {
+                handlePagination(dataState)
                 stateChangeListener.onDataStateChange(dataState)
-                dataState.data?.let {
-                    it.data?.let { event ->
-                        event.getContentIfNotHandled()?.let {
-                            Log.d(TAG, "BlogFragment: dataState: $dataState")
-                            viewModel.setBlogListData(it.blogFields.blogList)
-                        }
-                    }
-                }
             }
         })
 
@@ -72,10 +62,36 @@ class BlogFragment : BaseBlogFragment(), BlogListAdapter.Interaction {
             if (viewState != null) {
                 recyclerAdapter.submitList(
                     blogList = viewState.blogFields.blogList,
-                    isQueryExhausted = true
+                    isQueryExhausted = viewState.blogFields.isQueryExhausted
                 )
             }
         })
+    }
+
+    private fun handlePagination(dataState: DataState<BlogViewState>) {
+        //handling incoming data from datastate
+        dataState.data?.let {
+            it.data?.let {
+                it.getContentIfNotHandled()?.let {
+                    viewModel.handleIncomingBlogListData(it)
+                }
+            }
+        }
+
+        //check for pagination end(ex no more results)
+        //must do this b/c server will return ApiErrorResponse if page is not valid
+        //  -> meaning is no more data
+        dataState.error?.let { event ->
+            event.peekContent().response.message?.let {
+                if (ErrorHandling.isPaginationDone(it)) {
+                    //handle the error message  event  so it does not play  on ui
+                    event.getContentIfNotHandled()
+
+                    //set query exhausted  to update recyclerView  with "No more results" list item
+                    viewModel.setQueryExhausted(true)
+                }
+            }
+        }
     }
 
     private fun initRecyclerView() {
@@ -97,7 +113,7 @@ class BlogFragment : BaseBlogFragment(), BlogListAdapter.Interaction {
                     val lastPosition = layoutManager.findLastVisibleItemPosition()
                     if (lastPosition == recyclerAdapter.itemCount.minus(1)) {
                         Log.d(TAG, "BlogFragment: attemting to load next page...")
-                        //TODO("Load next page using viewModel")
+                        viewModel.nextPage()
                     }
                 }
             })

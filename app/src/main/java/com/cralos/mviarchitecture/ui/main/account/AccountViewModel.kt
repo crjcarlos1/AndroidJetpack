@@ -6,7 +6,7 @@ import com.cralos.mviarchitecture.repository.main.AccountRepository
 import com.cralos.mviarchitecture.session.SessionManager
 import com.cralos.mviarchitecture.ui.BaseViewModel
 import com.cralos.mviarchitecture.ui.DataState
-import com.cralos.mviarchitecture.ui.auth.state.AuthStateEvent
+import com.cralos.mviarchitecture.ui.Loading
 import com.cralos.mviarchitecture.ui.main.account.state.AccountStateEvent
 import com.cralos.mviarchitecture.ui.main.account.state.AccountViewState
 import com.cralos.mviarchitecture.util.AbsentLiveData
@@ -56,7 +56,12 @@ constructor(
                 } ?: AbsentLiveData.create()
             }
             is AccountStateEvent.None -> {
-                return AbsentLiveData.create()
+                return object : LiveData<DataState<AccountViewState>>() {
+                    override fun onActive() {
+                        super.onActive()
+                        value = DataState(null, Loading(false), null)
+                    }
+                }
             }
         }
     }
@@ -74,12 +79,12 @@ constructor(
         sessionManager.logout()
     }
 
-    fun cancelActiveJobs(){
+    fun cancelActiveJobs() {
         handlePendingData()
         accountRepository.cancelActiveJobs()
     }
 
-    fun handlePendingData(){
+    fun handlePendingData() {
         setStateEvent(AccountStateEvent.None())
     }
 
