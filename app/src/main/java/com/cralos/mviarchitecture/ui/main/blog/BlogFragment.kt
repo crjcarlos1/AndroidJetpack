@@ -1,14 +1,19 @@
 package com.cralos.mviarchitecture.ui.main.blog
 
+import android.app.SearchManager
+import android.content.Context.SEARCH_SERVICE
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import android.view.inputmethod.EditorInfo
+import android.widget.EditText
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.cralos.mviarchitecture.R
 import com.cralos.mviarchitecture.models.BlogPost
 import com.cralos.mviarchitecture.ui.DataState
@@ -20,9 +25,10 @@ import kotlinx.android.synthetic.main.fragment_blog.*
 import kotlinx.coroutines.InternalCoroutinesApi
 
 @InternalCoroutinesApi
-class BlogFragment : BaseBlogFragment(), BlogListAdapter.Interaction {
+class BlogFragment : BaseBlogFragment(), BlogListAdapter.Interaction,
+    SwipeRefreshLayout.OnRefreshListener {
 
-
+    private lateinit var searchView: SearchView
     lateinit var recyclerAdapter: BlogListAdapter
 
     override fun onCreateView(
@@ -35,12 +41,25 @@ class BlogFragment : BaseBlogFragment(), BlogListAdapter.Interaction {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        (activity as AppCompatActivity).supportActionBar?.setDisplayShowTitleEnabled(false)
+        setHasOptionsMenu(true)
+        swipe_refresh.setOnRefreshListener(this)
         initRecyclerView()
         subscribeObservers()
         if (savedInstanceState == null) {
             viewModel.loadFirstPage()
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.search_menu, menu)
+        initSearchView(menu)
+    }
+
+    override fun onRefresh() {
+        onBlogSearchOrFilter()
+        swipe_refresh.isRefreshing = false
     }
 
     override fun onDestroy() {
@@ -121,6 +140,52 @@ class BlogFragment : BaseBlogFragment(), BlogListAdapter.Interaction {
             adapter = recyclerAdapter
 
         }
+    }
+
+    private fun initSearchView(menu: Menu) {
+        activity?.apply {
+            val searchManager: SearchManager = getSystemService(SEARCH_SERVICE) as SearchManager
+            searchView = menu.findItem(R.id.action_search).actionView as SearchView
+            searchView.setSearchableInfo(searchManager.getSearchableInfo(componentName))
+            searchView.maxWidth = Integer.MAX_VALUE
+            searchView.setIconifiedByDefault(true)
+            searchView.isSubmitButtonEnabled = true
+        }
+
+        // case1: Enter on computer keyboard or arrow on virtual keyboard
+        val searchPlate = searchView.findViewById(R.id.search_src_text) as EditText
+        searchPlate.setOnEditorActionListener { v, actionId, event ->
+            if (actionId == EditorInfo.IME_ACTION_UNSPECIFIED || actionId == EditorInfo.IME_ACTION_SEND) {
+                val searchQuery = v.text.toString()
+                Log.e(TAG, "SearchView: (keyboard or arrow) executing search... $searchQuery")
+                viewModel.setQuery(searchQuery).let {
+                    onBlogSearchOrFilter()
+                }
+            }
+            true
+        }
+
+        // case2: SearchButton clicked  (in toollbar)
+        (searchView.findViewById(R.id.search_go_btn) as View).setOnClickListener {
+            val searchQuery = searchPlate.text.toString()
+            Log.e(TAG, "SearchView: (button) executing search... $searchQuery")
+            viewModel.setQuery(searchQuery).let {
+                onBlogSearchOrFilter()
+            }
+        }
+
+    }
+
+    private fun onBlogSearchOrFilter() {
+        viewModel.loadFirstPage().let {
+            resetUi()
+        }
+    }
+
+    private fun resetUi() {
+        blog_post_recyclerview.smoothScrollToPosition(0)
+        stateChangeListener.hideSoftKeyBoard()
+        focusable_view.requestFocus()
     }
 
     override fun onItemSelected(position: Int, item: BlogPost) {
