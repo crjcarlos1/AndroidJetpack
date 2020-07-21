@@ -7,6 +7,9 @@ import android.util.Log
 import android.view.*
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
+import android.widget.RadioButton
+import android.widget.RadioGroup
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.Observer
@@ -14,8 +17,14 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.afollestad.materialdialogs.MaterialDialog
+import com.afollestad.materialdialogs.customview.customView
+import com.afollestad.materialdialogs.customview.getCustomView
 import com.cralos.mviarchitecture.R
 import com.cralos.mviarchitecture.models.BlogPost
+import com.cralos.mviarchitecture.persistence.BlogQueryUtils.Companion.BLOG_FILTER_DATE_UPDATED
+import com.cralos.mviarchitecture.persistence.BlogQueryUtils.Companion.BLOG_FILTER_USERNAME
+import com.cralos.mviarchitecture.persistence.BlogQueryUtils.Companion.BLOG_ORDER_ASC
 import com.cralos.mviarchitecture.ui.DataState
 import com.cralos.mviarchitecture.ui.main.blog.state.BlogViewState
 import com.cralos.mviarchitecture.ui.main.blog.viewmodel.*
@@ -55,6 +64,16 @@ class BlogFragment : BaseBlogFragment(), BlogListAdapter.Interaction,
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.search_menu, menu)
         initSearchView(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId){
+            R.id.action_filter_settings->{
+                showFilterOptions()
+                return true
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     override fun onRefresh() {
@@ -192,6 +211,73 @@ class BlogFragment : BaseBlogFragment(), BlogListAdapter.Interaction,
         Log.d(TAG, "onItemSelected: position,blogPost: $position, $item")
         viewModel.setBlogPost(item)
         findNavController().navigate(R.id.action_blogFragment_to_viewBlogFragment)
+    }
+
+    private fun showFilterOptions() {
+        // 0) show dialog
+        activity?.let {
+            val dialog = MaterialDialog(it)
+                .noAutoDismiss()
+                .customView(R.layout.layout_blog_filter)
+
+            val view = dialog.getCustomView()
+
+            // )1 highlight the previous filter options
+            val filter = viewModel.getFilter()
+            if (filter.equals(BLOG_FILTER_DATE_UPDATED)) {
+                view.findViewById<RadioGroup>(R.id.filter_group).check(R.id.filter_date)
+            } else {
+                view.findViewById<RadioGroup>(R.id.filter_group).check(R.id.filter_author)
+            }
+
+            val order = viewModel.getOrder()
+            if (order.equals(BLOG_ORDER_ASC)) {
+                view.findViewById<RadioGroup>(R.id.order_group).check(R.id.filter_asc)
+            } else {
+                view.findViewById<RadioGroup>(R.id.order_group).check(R.id.filter_desc)
+            }
+
+            // 2)listen for new applied filters
+            view.findViewById<TextView>(R.id.positive_button).setOnClickListener {
+                Log.d(TAG, "FilterDialog: applying filters")
+                val selectedFilter = dialog.getCustomView().findViewById<RadioButton>(
+                    dialog.getCustomView()
+                        .findViewById<RadioGroup>(R.id.filter_group).checkedRadioButtonId
+                )
+                val selectedOrder = dialog.getCustomView().findViewById<RadioButton>(
+                    dialog.getCustomView()
+                        .findViewById<RadioGroup>(R.id.order_group).checkedRadioButtonId
+                )
+
+                var filter = BLOG_FILTER_DATE_UPDATED
+                if (selectedFilter.text.toString().equals(getString(R.string.filter_author))) {
+                    filter = BLOG_FILTER_USERNAME
+                }
+
+                var order = ""
+                if (selectedOrder.text.toString().equals(getString(R.string.filter_desc))) {
+                    order = "-"
+                }
+
+                // 3)set the filter and order in the viewmodel
+                // 4)save to share preferences
+                viewModel.saveFilterOptions(filter, order).let {
+                    viewModel.setBlogFilter(filter)
+                    viewModel.setBlogOrder(order)
+                    onBlogSearchOrFilter()
+                }
+                dialog.dismiss()
+            }
+
+            view.findViewById<TextView>(R.id.negative_button).setOnClickListener {
+                Log.d(TAG, "filterDialog: cancellingFilter")
+                dialog.dismiss()
+            }
+
+            dialog.show()
+
+        }
+
     }
 
 }
