@@ -8,6 +8,7 @@ import com.cralos.mviarchitecture.api.main.responses.BlogListSearchResponse
 import com.cralos.mviarchitecture.models.AuthToken
 import com.cralos.mviarchitecture.models.BlogPost
 import com.cralos.mviarchitecture.persistence.BlogPostDao
+import com.cralos.mviarchitecture.persistence.returnOrderedBlogQuery
 import com.cralos.mviarchitecture.session.SessionManager
 import com.cralos.mviarchitecture.ui.DataState
 import com.cralos.mviarchitecture.ui.main.blog.state.BlogViewState
@@ -30,6 +31,7 @@ constructor(
     fun searchBlogRepository(
         authToken: AuthToken,
         query: String,
+        filterAndOrder: String,
         page: Int
     ): LiveData<DataState<BlogViewState>> {
 
@@ -73,13 +75,14 @@ constructor(
                 return openApiMainService.searchListBlogPosts(
                     "Token ${authToken.token}",
                     query = query,
+                    ordering = filterAndOrder,
                     page = page
                 )
             }
 
             override fun loadFromCache(): LiveData<BlogViewState> {
-                return blogPostDao.getAllBlogPosts(
-                    query = query, page = page
+                return blogPostDao.returnOrderedBlogQuery(
+                    query = query, filterAndOrder = filterAndOrder, page = page
                 )
                     .switchMap {
                         object : LiveData<BlogViewState>() {

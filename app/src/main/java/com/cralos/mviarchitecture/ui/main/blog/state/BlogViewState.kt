@@ -1,6 +1,8 @@
 package com.cralos.mviarchitecture.ui.main.blog.state
 
 import com.cralos.mviarchitecture.models.BlogPost
+import com.cralos.mviarchitecture.persistence.BlogQueryUtils.Companion.BLOG_ORDER_ASC
+import com.cralos.mviarchitecture.persistence.BlogQueryUtils.Companion.ORDER_BY_ASC_DATE_UPDATED
 
 data class BlogViewState(
 
@@ -19,7 +21,9 @@ data class BlogViewState(
         var searchQuery: String = "",
         var page: Int = 1,
         var isQueryInProgress: Boolean = false,
-        var isQueryExhausted: Boolean = false
+        var isQueryExhausted: Boolean = false,
+        var filter : String = ORDER_BY_ASC_DATE_UPDATED,
+        var order : String = BLOG_ORDER_ASC
     )
 
     data class ViewBlogFields(
